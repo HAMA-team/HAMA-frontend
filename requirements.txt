@@ -1,0 +1,47 @@
+# HAMA Frontend - Node.js 의존성 목록
+# 이 파일은 참고용이며, 실제 설치는 package.json을 사용합니다.
+
+# === Core Dependencies ===
+react@^18.3.1
+react-dom@^18.3.1
+
+# === Routing & State Management ===
+react-router-dom@^6.26.2        # 클라이언트 사이드 라우팅
+zustand@^5.0.0                   # 경량 상태 관리
+
+# === Form & Validation ===
+react-hook-form@^7.53.0         # 폼 관리
+zod@^3.23.8                      # 스키마 검증
+
+# === Utilities ===
+date-fns@^4.1.0                  # 날짜 처리
+
+# === Charts & Visualization ===
+recharts@^2.12.7                 # 포트폴리오 차트
+
+# === Dev Dependencies ===
+# Build Tools
+vite@^5.4.8                      # 빌드 도구
+@vitejs/plugin-react@^4.3.2     # Vite React 플러그인
+
+# TypeScript
+typescript@^5.6.2                # TypeScript 컴파일러
+@types/react@^18.3.9            # React 타입 정의
+@types/react-dom@^18.3.0        # React DOM 타입 정의
+
+# Styling
+tailwindcss@^3.4.13             # CSS 프레임워크
+autoprefixer@^10.4.20           # CSS 자동 prefix
+postcss@^8.4.47                  # CSS 후처리
+
+# Linting
+eslint@^9.11.1                   # JavaScript/TypeScript 린터
+@typescript-eslint/eslint-plugin@^8.7.0
+@typescript-eslint/parser@^8.7.0
+eslint-plugin-react-hooks@^5.1.0-rc.0
+eslint-plugin-react-refresh@^0.4.12
+
+# === Installation ===
+# npm install                     # 모든 의존성 설치
+# npm install --save <package>    # 프로덕션 의존성 추가
+# npm install --save-dev <package> # 개발 의존성 추가
