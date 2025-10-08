@@ -83,23 +83,23 @@
 ### 개발 우선순위 (업데이트)
 
 #### Week 1: 기본 인프라 + Research 연동
-- [ ] 프로젝트 셋업 (Vite + React + TypeScript + Tailwind)
-- [ ] API 클라이언트 구현
-- [ ] 기본 채팅 인터페이스
-- [ ] **Research 에이전트 연동** ⭐ (실제 데이터 사용 가능!)
+- [✅] 프로젝트 셋업 (Vite + React + TypeScript + Tailwind)
+- [✅] API 클라이언트 구현
+- [✅] 기본 채팅 인터페이스
+- [✅] **Research 에이전트 연동** ⭐ (실제 데이터 사용 가능!)
   - "삼성전자 주가는?" → 실제 응답
   - "삼성전자 재무제표 보여줘" → DART API 응답
 
 #### Week 2: HITL 구현 (최우선!) 🔥
-- [ ] **HITL 승인 플로우 완벽 구현**
+- [✅] **HITL 승인 플로우 완벽 구현**
   - ApprovalDialog 컴포넌트
   - useApproval Hook
   - thread_id 관리 (중요!)
-- [ ] 매매 승인 UI
+- [✅] 매매 승인 UI
   - 주문 상세 정보
   - 리스크 경고 표시
 - [ ] 자동화 레벨 선택 UI
-- [ ] 에러 처리 및 로딩 상태
+- [✅] 에러 처리 및 로딩 상태
 
 #### Week 3: 포트폴리오 대시보드 (Mock 전제)
 - [ ] 포트폴리오 조회 UI (Mock 데이터)
