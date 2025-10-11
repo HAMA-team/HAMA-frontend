@@ -2,7 +2,7 @@
 
 이 문서는 **HAMA (Human-in-the-Loop AI Multiagent Investment System)** 프론트엔드 개발을 위한 Claude Code 활용 가이드입니다.
 
-**최종 업데이트**: 2025-10-11 | **프론트엔드 완성도**: 75%
+**최종 업데이트**: 2025-10-11 | **프론트엔드 완성도**: 80% ⬆️
 
 ---
 
@@ -16,12 +16,13 @@
 | **HITL 승인 플로우** | ✅ 완성 | ✅ 완성 | **90%** | thread_id 관리 완벽 |
 | **자동화 레벨 (1-3)** | ✅ 완성 | ✅ 완성 | **100%** | UI 선택, 상태 관리 완벽 |
 | **Research 에이전트** | ✅ 실제 데이터 | ✅ 준비 완료 | **80%** | DART + FDR 연동 가능 |
+| **채팅 히스토리 UI** | ✅ 완성 | ✅ 완성 | **60%** | ⭐ **NEW! Mock 동작, API 연동 대기** |
 
 ### 🔄 **부분 구현 / 개선 필요**
 
 | 기능 | 백엔드 상태 | 프론트 상태 | 활용도 | 개선 사항 |
 |------|-----------|-----------|--------|----------|
-| **채팅 히스토리** | ✅ 완성 | ❌ UI 없음 | **0%** | ⚠️ **즉시 구현 필요** |
+| **채팅 히스토리 API** | ⚠️ 부분 | ✅ UI 완성 | **60%** | `GET /chat/sessions` API 필요 |
 | **포트폴리오 API** | 🔄 예정 | ✅ Mock UI | **40%** | 백엔드 API 요청 필요 |
 | **대시보드 API** | 🔄 예정 | ✅ Mock UI | **40%** | 백엔드 API 요청 필요 |
 | **에러 처리** | ✅ 기본 | ✅ 기본 | **60%** | 세밀한 에러 타입 처리 |
@@ -39,10 +40,11 @@
    - 실제 API와 동일한 응답 형식
    - UI에서 토글 가능
 
-3. ❌ **채팅 히스토리 UI 미구현** (중요!)
-   - API 함수는 존재하지만 UI 컴포넌트 없음
-   - 백엔드는 DB에 저장 중 (PostgreSQL)
-   - **즉시 구현 필요**
+3. ✅ **채팅 히스토리 UI 구현 완료!** ⭐ NEW (2025-10-11)
+   - HistorySidebar, HistoryItem 컴포넌트 완성
+   - 날짜별 그룹핑, 검색 기능 추가
+   - Mock 데이터로 UI 동작 확인 완료
+   - ⚠️ 백엔드 `GET /chat/sessions` API 필요 (CHAT_HISTORY_INTEGRATION.md 참조)
 
 4. 🔄 **포트폴리오/대시보드는 Mock 전용**
    - UI는 완성되었으나 백엔드 API 미연동
@@ -54,24 +56,26 @@
 
 ### 🔥 **우선순위 HIGH** (이번 주 완료)
 
-#### 1. 채팅 히스토리 UI 구현
+#### ✅ 1. 채팅 히스토리 UI 구현 **[완료!]**
 ```typescript
-// 필요한 컴포넌트:
+// 구현된 컴포넌트:
 src/components/chat/
-  ├── HistorySidebar.tsx    // 대화 목록 사이드바
-  ├── HistoryItem.tsx        // 개별 대화 항목
-  └── HistorySearch.tsx      // 대화 검색 기능
+  ├── HistorySidebar.tsx    ✅ 완성 (280px, 접기/펴기, 날짜 그룹핑)
+  ├── HistoryItem.tsx        ✅ 완성 (hover, 삭제 버튼)
+  └── Chat.tsx               ✅ 통합 완료
 
-// 기능:
-- 과거 대화 목록 표시 (conversation_id별)
-- 클릭 시 대화 불러오기
-- 개별 대화 삭제
-- 전체 대화 삭제
+// 구현된 기능:
+- ✅ 대화 목록 표시 (Mock 데이터)
+- ✅ 날짜별 그룹핑 (오늘, 어제, 이번 주, 이번 달, 이전)
+- ✅ 검색 기능 (제목, 메시지 내용)
+- ✅ 개별 대화 삭제
+- ✅ 슬라이드 애니메이션
+- ⚠️ 백엔드 API 연동 대기 중 (GET /chat/sessions 필요)
 ```
 
-**이유:** 백엔드 API가 이미 완성되어 있고, DB에 저장 중이므로 즉시 구현 가능
+**문서:** `docs/plan/CHAT_HISTORY_INTEGRATION.md` 참조
 
-#### 2. 포트폴리오 & 대시보드 API 연동
+#### 2. 포트폴리오 & 대시보드 API 연동 **[다음 우선순위]**
 ```typescript
 // 백엔드 메이트에게 요청할 API:
 
@@ -394,7 +398,9 @@ hama-frontend/
 │   │   │   ├── ChatInterface.tsx       ✅ 완성
 │   │   │   ├── MessageList.tsx         ✅ 완성
 │   │   │   ├── MessageInput.tsx        ✅ 완성
-│   │   │   └── ApprovalDialog.tsx      ✅ 완성 (HITL)
+│   │   │   ├── ApprovalDialog.tsx      ✅ 완성 (HITL)
+│   │   │   ├── HistorySidebar.tsx      ✅ 완성 ⭐ NEW
+│   │   │   └── HistoryItem.tsx         ✅ 완성 ⭐ NEW
 │   │   ├── layout/
 │   │   │   ├── Layout.tsx              ✅ 완성
 │   │   │   └── Header.tsx              ✅ 완성
@@ -433,7 +439,10 @@ hama-frontend/
 │       ├── PRD.md
 │       ├── 프론트엔드 통합 가이드.md
 │       ├── BackendREADME.md
-│       └── PAGES.md
+│       ├── PAGES.md
+│       ├── DESIGN_SYSTEM.md
+│       ├── 페이지별_상세_기획안.md
+│       └── CHAT_HISTORY_INTEGRATION.md  ⭐ NEW
 ├── .env.local                           ✅ 설정 완료
 └── package.json                         ✅ 의존성 완료
 ```
@@ -495,20 +504,23 @@ hama-frontend/
 
 ## 🚨 누락/개선 필요 사항
 
-### ❌ 1. 채팅 히스토리 UI (즉시 구현)
+### ✅ 1. 채팅 히스토리 UI **[구현 완료!]** ⭐
 
 **현재 상태:**
-- ✅ API 함수 존재 (`getChatHistory`, `deleteChatHistory`)
-- ❌ UI 컴포넌트 없음
-- ✅ 백엔드 DB 저장 중
+- ✅ UI 컴포넌트 완성
+- ✅ Mock 데이터로 동작 확인
+- ✅ 날짜별 그룹핑, 검색 기능
+- ⚠️ 백엔드 `GET /chat/sessions` API 필요
 
-**필요한 컴포넌트:**
+**구현된 컴포넌트:**
 ```typescript
 src/components/chat/
-  ├── HistorySidebar.tsx    // 대화 목록
-  ├── HistoryItem.tsx        // 개별 대화
-  └── HistorySearch.tsx      // 검색
+  ├── HistorySidebar.tsx    ✅ 완성
+  ├── HistoryItem.tsx        ✅ 완성
+  └── Chat.tsx               ✅ 통합 완료
 ```
+
+**문서:** `docs/plan/CHAT_HISTORY_INTEGRATION.md` 참조
 
 ### 🔄 2. 포트폴리오/대시보드 API 연동
 
@@ -586,7 +598,8 @@ src/components/chat/
 
 ### 🔄 진행 중 / 즉시 필요
 
-- [ ] **채팅 히스토리 UI** ⚠️ 즉시 구현
+- [x] **채팅 히스토리 UI** ✅ 완료! (2025-10-11)
+- [ ] **채팅 히스토리 백엔드 API** (`GET /chat/sessions` 요청 필요)
 - [ ] **포트폴리오 API 연동** (백엔드 API 요청)
 - [ ] **대시보드 API 연동** (백엔드 API 요청)
 - [ ] **Research 응답 구조화**
@@ -621,7 +634,16 @@ src/components/chat/
 ---
 
 **최종 업데이트**: 2025-10-11
-**프론트엔드 완성도**: 75% ⭐⭐⭐⭐☆
-**다음 목표**: 채팅 히스토리 UI 구현 + 포트폴리오/대시보드 API 연동
+**프론트엔드 완성도**: 80% ⭐⭐⭐⭐☆ (⬆️ +5%)
+
+**최근 완료:**
+- ✅ 채팅 히스토리 UI 구현 (HistorySidebar, HistoryItem)
+- ✅ 날짜별 그룹핑 및 검색 기능
+- ✅ CHAT_HISTORY_INTEGRATION.md 문서 작성
+
+**다음 목표**:
+1. 백엔드 API 요청 (`GET /chat/sessions`, 포트폴리오, 대시보드)
+2. 포트폴리오/대시보드 API 연동
+3. Research 응답 구조화
 
 **Great work! Keep going! 🚀**
