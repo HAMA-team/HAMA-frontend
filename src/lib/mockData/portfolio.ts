@@ -76,16 +76,35 @@ export const mockPortfolioData = {
     },
   ],
 
+  // 최근 활동
+  recentActivities: [
+    {
+      id: 'A001',
+      type: 'trade_buy',
+      content: '삼성전자 10주 매수 완료',
+      timestamp: new Date('2025-10-11T14:30:00'),
+    },
+    {
+      id: 'A002',
+      type: 'ai_suggestion',
+      content: 'AI 제안: IT 섹터 비중 확대',
+      timestamp: new Date('2025-10-11T09:15:00'),
+    },
+    {
+      id: 'A003',
+      type: 'risk_warning',
+      content: '리스크 경고: 단일 종목 비중 40% 초과',
+      timestamp: new Date('2025-10-10T11:00:00'),
+    },
+    {
+      id: 'A004',
+      type: 'trade_sell',
+      content: 'NAVER 5주 매도 완료',
+      timestamp: new Date('2025-10-09T10:15:00'),
+    },
+  ],
+
   // 현금
   cash: 525000,
   cashPercentage: 5,
 };
-
-// 차트 색상
-export const CHART_COLORS = [
-  'var(--color-primary-500)',   // 삼성전자
-  'var(--color-secondary-500)',  // NAVER
-  'var(--color-accent-500)',     // SK하이닉스
-  'var(--color-info-500)',       // LG화학
-  'var(--color-gray-400)',       // 현금
-];

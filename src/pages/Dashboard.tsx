@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import { mockDashboardData } from '@/lib/mockData';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { useDashboardData } from '@/hooks/useDashboardData';
+import type { DashboardData } from '@/hooks/useDashboardData';
 
 const ActivityIcon = ({ type }: { type: string }) => {
   switch (type) {
@@ -19,15 +20,37 @@ const ActivityIcon = ({ type }: { type: string }) => {
   }
 };
 
+const Skeleton = ({ className = '' }: { className?: string }) => <div className={`skeleton ${className}`} />;
 export function Dashboard() {
   const navigate = useNavigate();
+  const { data, isLoading, error } = useDashboardData();
 
-  const {
-    accountConnection,
-    totalAssets,
-    portfolioSummary,
-    recentActivities,
-  } = mockDashboardData;
+  if (isLoading) {
+    return (
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-12 gap-6 auto-rows-auto">
+          <div className="col-span-12 md:col-span-4"><Skeleton className="h-28" /></div>
+          <div className="col-span-12 md:col-span-8"><Skeleton className="h-28" /></div>
+          <div className="col-span-12 lg:col-span-7"><Skeleton className="h-60" /></div>
+          <div className="col-span-12 lg:col-span-5"><Skeleton className="h-60" /></div>
+          <div className="col-span-12"><Skeleton className="h-40" /></div>
+        </div>
+      </main>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        <div className="card text-center">
+          <p style={{ color: 'var(--color-danger-600)' }}>{error || '데이터를 불러올 수 없습니다.'}</p>
+          <button className="btn btn-primary mt-4" onClick={() => window.location.reload()}>새로고침</button>
+        </div>
+      </main>
+    );
+  }
+
+  const { totalAssets, portfolioSummary, recentActivities } = data;
 
   const chartData = [
     ...portfolioSummary.holdings.map((h) => ({ name: h.name, value: h.percentage })),
@@ -38,35 +61,21 @@ export function Dashboard() {
   return (
     <main className="max-w-7xl mx-auto px-6 py-8">
       <div className="grid grid-cols-12 gap-6 auto-rows-auto">
-        {/* 계좌 연결 상태 카드 */}
+        {/* 계좌 연결 상태 카드 - 이 부분은 전역 상태 또는 다른 훅에서 가져와야 할 수 있습니다. */}
         <div className="col-span-12 md:col-span-4">
           <div className="card h-full">
-            <div className="flex items-center gap-3 mb-2">
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: 'var(--color-success-100)' }}
-              >
-                <span style={{ color: 'var(--color-success-600)' }} className="text-xl">
-                  ✓
+            <h3 className="text-lg font-bold mb-4">계정 상태</h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-600">증권사</span>
+                <span className="font-semibold">{data.accountConnection.broker}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-600">자동화 레벨</span>
+                <span className="font-semibold badge badge-info">
+                  {data.automationLevel.name}
                 </span>
               </div>
-              <div>
-                <h3 className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                  증권사
-                </h3>
-                <p className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
-                  {accountConnection.broker}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <span
-                className="w-2 h-2 rounded-full animate-pulse"
-                style={{ backgroundColor: 'var(--color-success-500)' }}
-              ></span>
-              <span className="text-xs" style={{ color: 'var(--color-success-700)' }}>
-                연결됨
-              </span>
             </div>
           </div>
         </div>
@@ -153,7 +162,7 @@ export function Dashboard() {
           <div className="card h-full">
             <h3 className="text-lg font-bold mb-4">최근 활동</h3>
             <div className="space-y-3">
-              {recentActivities.slice(0, 4).map((activity) => (
+              {recentActivities.slice(0, 4).map((activity: DashboardData['recentActivities'][number]) => (
                 <div key={activity.id} className="flex items-start gap-3">
                   <div
                     className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-lg`}
@@ -163,7 +172,7 @@ export function Dashboard() {
                   <div className="flex-grow">
                     <p className="text-sm font-medium">{activity.content}</p>
                     <p className="text-xs text-gray-500">
-                      {formatDistanceToNow(activity.timestamp, { addSuffix: true, locale: ko })}
+                      {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true, locale: ko })}
                     </p>
                   </div>
                 </div>
