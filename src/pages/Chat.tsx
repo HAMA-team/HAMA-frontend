@@ -4,6 +4,7 @@ import { useMockChat } from '@/hooks/useMockChat';
 import { useApproval } from '@/hooks/useApproval';
 import { MessageList } from '@/components/chat/MessageList';
 import { MessageInput } from '@/components/chat/MessageInput';
+import { HistorySidebar } from '@/components/chat/HistorySidebar';
 import { AutomationLevel, AUTOMATION_LEVELS } from '@/types/automation';
 import type { TradeApprovalData } from '@/types/chat';
 
@@ -13,6 +14,7 @@ export function Chat() {
   );
   const [isMockMode, setIsMockMode] = useState(false);
   const [userNotes, setUserNotes] = useState('');
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   const realChat = useChat();
   const { approve, isSubmitting } = useApproval();
@@ -27,6 +29,7 @@ export function Chat() {
     send,
     clearApproval,
     reset,
+    conversationId,
   } = isMockMode ? mockChat : realChat;
 
   const handleSendMessage = async (message: string) => {
@@ -35,6 +38,28 @@ export function Chat() {
     } catch (err) {
       console.error('Send message error:', err);
     }
+  };
+
+  const handleSelectConversation = async (id: string) => {
+    // TODO: 백엔드 API 연동 필요
+    // 현재는 getChatHistory가 있지만, 메시지 형식이 다름
+    // 백엔드 응답: { conversation_id, automation_level, messages: [{role, content}] }
+    // 프론트 필요: ChatMessage[] 형식으로 변환
+    //
+    // 구현 방법:
+    // 1. getChatHistory(id) 호출
+    // 2. 응답을 ChatMessage[] 형식으로 변환
+    // 3. useChat의 messages 상태 업데이트 (현재 useChat에 이 기능 없음)
+    //
+    // 문제: useChat hook이 메시지 로드 기능을 제공하지 않음
+    // 해결: useChat에 loadConversation(id) 함수 추가 필요
+
+    console.log('TODO: 대화 로드 구현 필요 - conversation ID:', id);
+    alert('대화 로드 기능은 백엔드 연동 후 구현됩니다.\n\n필요한 작업:\n1. useChat hook에 loadConversation() 함수 추가\n2. getChatHistory API 호출\n3. 메시지 형식 변환 및 상태 업데이트');
+  };
+
+  const handleNewConversation = () => {
+    reset();
   };
 
   const handleApproval = async (decision: 'approved' | 'rejected') => {
@@ -67,6 +92,15 @@ export function Chat() {
         backgroundColor: 'var(--bg-subtle)',
       }}
     >
+      {/* 채팅 히스토리 사이드바 */}
+      <HistorySidebar
+        isOpen={isHistoryOpen}
+        onToggle={() => setIsHistoryOpen(!isHistoryOpen)}
+        currentConversationId={conversationId}
+        onSelectConversation={handleSelectConversation}
+        onNewConversation={handleNewConversation}
+      />
+
       {/* Mock/API 모드 오버레이 (우측 하단) */}
       <div className="fixed bottom-4 right-4 z-10">
         <button
@@ -87,7 +121,13 @@ export function Chat() {
       </div>
 
       {/* 메시지 영역 */}
-      <div className={`flex flex-col flex-1 transition-all ${awaitingApproval ? 'mr-[400px]' : ''}`}>
+      <div
+        className="flex flex-col flex-1 transition-all"
+        style={{
+          marginLeft: isHistoryOpen ? '280px' : '0',
+          marginRight: awaitingApproval ? '400px' : '0',
+        }}
+      >
         {error && (
           <div className="bg-red-50 border-l-4 border-red-500 p-4 mx-4 mt-4">
             <p style={{ color: 'var(--color-danger-700)' }}>

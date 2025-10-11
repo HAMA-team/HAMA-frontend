@@ -103,7 +103,8 @@ Level 3 (Advisor) → 모든 결정 승인 필요
 supervisor = create_supervisor(
     agents=[research_agent, strategy_agent, risk_agent, ...],
     model=ChatAnthropic(model="claude-3-5-sonnet"),
-    parallel_tool_calls=True  # 병렬 실행
+    parallel_tool_calls=True  # 에이전트 선택 시 병렬 가능
+    # 실제 실행은 의존성에 따라 순차적으로 조율
 )
 
 # HITL Interrupt 메커니즘
@@ -124,13 +125,23 @@ if state.next:  # Interrupt 발생
                     ↓
         적절한 에이전트 선택 (동적 라우팅)
                     ↓
-    [Research] [Strategy] [Risk] (병렬 실행)
+              Research Agent
+        (내부 노드: Bull/Bear 병렬 분석)
+                    ↓
+             Strategy Agent
+      (내부 노드: 시장/섹터/자산배분 순차)
+                    ↓
+               Risk Agent
+       (내부 노드: 집중도/시장리스크 순차)
                     ↓
             결과 통합 → HITL 체크
                     ↓
         승인 필요? → Interrupt 발생
                     ↓
         사용자 승인 → 거래 실행
+
+⚠️ 에이전트 간: 순차 실행 (의존성)
+✅ 에이전트 내부 노드: 병렬 실행 가능
 ```
 
 ---
@@ -150,9 +161,8 @@ if state.next:  # Interrupt 발생
 - **Supervisor 패턴** - 멀티 에이전트 조율
 
 ### **Data Sources**
-- **FinanceDataReader** - 주가 데이터
+- **FinanceDataReader** - KRX 시장 데이터
 - **DART Open API** - 금융감독원 공시 시스템
-- **pykrx** (예정) - KRX 시장 데이터
 
 ### **DevOps**
 - **Docker** (예정) - 컨테이너화
@@ -220,8 +230,8 @@ CACHE_TTL_MARKET_DATA=60
 # PostgreSQL 데이터베이스 생성
 createdb hama_db
 
-# 마이그레이션 (TODO: Alembic 설정)
-# alembic upgrade head
+# Alembic 마이그레이션 (채팅 히스토리 테이블 포함)
+alembic upgrade head
 ```
 
 ### **5. 서버 실행**
@@ -258,6 +268,11 @@ curl -X POST http://localhost:8000/api/v1/chat/ \
     "automation_level": 2
   }'
 ```
+
+### **7. 채팅 히스토리 & 테스트 모드**
+
+- 채팅 세션과 메시지는 `chat_sessions`, `chat_messages` 테이블에 저장됩니다. 최초 설정 시 `alembic upgrade head` 명령으로 테이블을 생성하세요.
+- `.env`에서 `ENV=test`로 설정하거나 `ANTHROPIC_API_KEY`를 비워 두면 LangGraph가 외부 LLM 대신 모의 응답/승인 플로우를 반환해 안전하게 테스트할 수 있습니다.
 
 ---
 
@@ -320,11 +335,43 @@ curl -X POST http://localhost:8000/api/v1/chat/ \
 }
 ```
 
+#### **GET `/api/v1/chat/history/{conversation_id}`** - 대화 히스토리 조회
+
+```bash
+curl http://localhost:8000/api/v1/chat/history/abc123-def456
+```
+
+```json
+{
+  "conversation_id": "abc123-def456",
+  "automation_level": 2,
+  "messages": [
+    {"role": "user", "content": "삼성전자 10주 매수해줘"},
+    {"role": "assistant", "content": "🔔 사용자 승인이 필요합니다."}
+  ]
+}
+```
+
+#### **DELETE `/api/v1/chat/history/{conversation_id}`** - 히스토리 삭제
+
+```bash
+curl -X DELETE http://localhost:8000/api/v1/chat/history/abc123-def456
+```
+
 ### **자세한 문서**
 
 - 📄 [프론트엔드 통합 가이드](docs/frontend-integration-guide.md) - React 예시 포함
 - 📄 [API 빠른 참조](docs/api-quick-reference.md)
 - 🌐 [OpenAPI Swagger](http://localhost:8000/docs)
+
+---
+
+## 🗂️ 데이터 구조 하이라이트
+
+- `chat_sessions`: 사용자, 자동화 레벨, 요약 정보 등을 포함한 채팅 세션 메타데이터
+- `chat_messages`: 세션별 사용자/에이전트 메시지 기록
+- `portfolios`, `positions`, `orders`, `transactions`: 투자 계정 및 체결 내역
+- `stocks`, `financial_statements`, `disclosures`: 종목/재무/공시 정보 캐시
 
 ---
 
