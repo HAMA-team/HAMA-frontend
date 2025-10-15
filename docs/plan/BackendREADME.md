@@ -201,7 +201,7 @@ pip install -r requirements.txt
 
 ```bash
 # .env 파일 생성
-cp .env.example .env
+cp .env .env
 ```
 
 **.env 파일 내용:**

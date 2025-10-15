@@ -4,13 +4,27 @@ import { mockPortfolioData } from '@/lib/mockData';
 // 포트폴리오 데이터 타입을 mock 데이터로부터 추론합니다.
 export type PortfolioData = typeof mockPortfolioData;
 
-// 차트 색상을 훅에서 직접 내보내서 컴포넌트의 의존성을 줄입니다.
+// 차트 색상 - 각 기업의 브랜드 컬러를 투명도로 조절하여 사용
+export const getStockColor = (name: string): string => {
+  const colorMap: Record<string, string> = {
+    '삼성전자': 'rgba(20, 70, 180, 0.7)',      // Samsung Blue
+    'NAVER': 'rgba(3, 199, 90, 0.7)',           // Naver Green
+    'SK하이닉스': 'rgba(234, 0, 0, 0.7)',       // SK Red
+    'LG화학': 'rgba(164, 26, 47, 0.7)',         // LG Red
+    '카카오': 'rgba(254, 229, 0, 0.7)',         // Kakao Yellow
+    '현대차': 'rgba(0, 44, 95, 0.7)',           // Hyundai Blue
+    '기아': 'rgba(5, 20, 31, 0.7)',             // Kia Dark
+    '현금': 'rgba(163, 163, 163, 0.5)',         // Gray
+  };
+  return colorMap[name] || 'rgba(115, 115, 115, 0.6)';
+};
+
 export const CHART_COLORS = [
-  'var(--color-primary-500)',   // 삼성전자
-  'var(--color-secondary-500)',  // NAVER
-  'var(--color-accent-500)',     // SK하이닉스
-  'var(--color-info-500)',       // LG화학
-  'var(--color-gray-400)',       // 현금
+  'rgba(20, 70, 180, 0.7)',   // 삼성전자
+  'rgba(3, 199, 90, 0.7)',     // NAVER
+  'rgba(234, 0, 0, 0.7)',      // SK하이닉스
+  'rgba(164, 26, 47, 0.7)',    // LG화학
+  'rgba(163, 163, 163, 0.5)',  // 현금
 ];
 
 export function usePortfolioData() {

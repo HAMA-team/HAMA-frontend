@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getChatHistory, deleteChatHistory } from '@/lib/api/chat';
+import { deleteChatHistory } from '@/lib/api/chat';
 import { HistoryItem } from './HistoryItem';
 
 interface Conversation {

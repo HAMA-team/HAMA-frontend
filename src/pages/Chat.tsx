@@ -5,11 +5,23 @@ import { useApproval } from '@/hooks/useApproval';
 import { MessageList } from '@/components/chat/MessageList';
 import { MessageInput } from '@/components/chat/MessageInput';
 import { HistorySidebar } from '@/components/chat/HistorySidebar';
-import { AutomationLevel, AUTOMATION_LEVELS } from '@/types/automation';
+import { AutomationLevel } from '@/types/automation';
 import type { TradeApprovalData } from '@/types/chat';
+import {
+  MessageSquare,
+  BarChart3,
+  DollarSign,
+  TrendingDown,
+  RefreshCw,
+  Layers,
+  Plug,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+} from 'lucide-react';
 
 export function Chat() {
-  const [automationLevel, setAutomationLevel] = useState<AutomationLevel>(
+  const [automationLevel] = useState<AutomationLevel>(
     AutomationLevel.COPILOT
   );
   const [isMockMode, setIsMockMode] = useState(false);
@@ -41,21 +53,8 @@ export function Chat() {
   };
 
   const handleSelectConversation = async (id: string) => {
-    // TODO: 백엔드 API 연동 필요
-    // 현재는 getChatHistory가 있지만, 메시지 형식이 다름
-    // 백엔드 응답: { conversation_id, automation_level, messages: [{role, content}] }
-    // 프론트 필요: ChatMessage[] 형식으로 변환
-    //
-    // 구현 방법:
-    // 1. getChatHistory(id) 호출
-    // 2. 응답을 ChatMessage[] 형식으로 변환
-    // 3. useChat의 messages 상태 업데이트 (현재 useChat에 이 기능 없음)
-    //
-    // 문제: useChat hook이 메시지 로드 기능을 제공하지 않음
-    // 해결: useChat에 loadConversation(id) 함수 추가 필요
-
     console.log('TODO: 대화 로드 구현 필요 - conversation ID:', id);
-    alert('대화 로드 기능은 백엔드 연동 후 구현됩니다.\n\n필요한 작업:\n1. useChat hook에 loadConversation() 함수 추가\n2. getChatHistory API 호출\n3. 메시지 형식 변환 및 상태 업데이트');
+    alert('대화 로드 기능은 백엔드 연동 후 구현됩니다.');
   };
 
   const handleNewConversation = () => {
@@ -85,13 +84,7 @@ export function Chat() {
       : null;
 
   return (
-    <div
-      className="flex relative"
-      style={{
-        height: 'calc(100vh - 64px)',
-        backgroundColor: 'var(--bg-subtle)',
-      }}
-    >
+    <div className="flex relative h-[calc(100vh-56px)] bg-background">
       {/* 채팅 히스토리 사이드바 */}
       <HistorySidebar
         isOpen={isHistoryOpen}
@@ -101,22 +94,32 @@ export function Chat() {
         onNewConversation={handleNewConversation}
       />
 
-      {/* Mock/API 모드 오버레이 (우측 하단) */}
+      {/* Mock/API 모드 토글 (우측 하단) */}
       <div className="fixed bottom-4 right-4 z-10">
         <button
           onClick={() => {
             setIsMockMode(!isMockMode);
             reset();
           }}
-          className="px-3 py-2 rounded-full shadow-lg font-medium text-xs transition-all"
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-full shadow-lg text-xs font-medium transition-all hover:shadow-xl backdrop-blur-sm"
           style={{
-            backgroundColor: isMockMode ? 'var(--color-secondary-500)' : 'var(--color-gray-600)',
-            color: 'white',
-            opacity: 0.7,
+            backgroundColor: isMockMode ? 'hsl(var(--secondary))' : 'hsl(var(--muted))',
+            color: isMockMode ? 'hsl(var(--secondary-foreground))' : 'hsl(var(--muted-foreground))',
+            opacity: 0.9,
           }}
           title={isMockMode ? 'Mock 모드 (클릭하여 API 모드로)' : 'API 모드 (클릭하여 Mock 모드로)'}
         >
-          {isMockMode ? '🎭 Mock' : '🔌 API'}
+          {isMockMode ? (
+            <>
+              <Layers className="h-3.5 w-3.5" strokeWidth={2} />
+              <span>Mock</span>
+            </>
+          ) : (
+            <>
+              <Plug className="h-3.5 w-3.5" strokeWidth={2} />
+              <span>API</span>
+            </>
+          )}
         </button>
       </div>
 
@@ -129,8 +132,8 @@ export function Chat() {
         }}
       >
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 mx-4 mt-4">
-            <p style={{ color: 'var(--color-danger-700)' }}>
+          <div className="bg-destructive/10 border-l-4 border-destructive p-4 mx-4 mt-4 rounded">
+            <p className="text-sm text-destructive">
               <strong>오류:</strong> {error}
             </p>
           </div>
@@ -140,65 +143,85 @@ export function Chat() {
         {messages.length === 0 && (
           <div className="flex-1 flex items-center justify-center p-8">
             <div className="max-w-2xl text-center space-y-6">
-              <div className="text-6xl mb-4">💬</div>
-              <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+              <div className="flex justify-center mb-4">
+                <div className="rounded-full bg-accent p-4">
+                  <MessageSquare className="h-12 w-12 text-accent-foreground" strokeWidth={1.5} />
+                </div>
+              </div>
+              <h2 className="text-2xl font-semibold tracking-tight text-foreground">
                 HAMA와 대화를 시작하세요
               </h2>
-              <p className="text-base" style={{ color: 'var(--text-secondary)' }}>
+              <p className="text-base text-muted-foreground">
                 투자에 관한 모든 것을 물어보세요. AI가 분석하고, 당신이 결정합니다.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-8">
                 <button
                   onClick={() => handleSendMessage('삼성전자 분석해줘')}
-                  className="card hover:shadow-md transition-all text-left p-4"
+                  className="flex items-start gap-3 p-4 rounded-lg border border-border bg-card hover:bg-accent hover:border-accent-foreground/20 transition-all text-left"
                 >
-                  <div className="text-xl mb-2">📊</div>
-                  <p className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>
-                    "삼성전자 분석해줘"
-                  </p>
-                  <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
-                    종목 분석 및 투자 의견
-                  </p>
+                  <div className="flex-shrink-0 rounded-md bg-accent p-2">
+                    <BarChart3 className="h-5 w-5 text-accent-foreground" strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm text-foreground">
+                      삼성전자 분석해줘
+                    </p>
+                    <p className="text-xs mt-1 text-muted-foreground">
+                      종목 분석 및 투자 의견
+                    </p>
+                  </div>
                 </button>
 
                 <button
                   onClick={() => handleSendMessage('삼성전자 10주 매수해줘')}
-                  className="card hover:shadow-md transition-all text-left p-4"
+                  className="flex items-start gap-3 p-4 rounded-lg border border-border bg-card hover:bg-accent hover:border-accent-foreground/20 transition-all text-left"
                 >
-                  <div className="text-xl mb-2">💰</div>
-                  <p className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>
-                    "삼성전자 10주 매수해줘"
-                  </p>
-                  <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
-                    매수 주문 (HITL 승인)
-                  </p>
+                  <div className="flex-shrink-0 rounded-md bg-accent p-2">
+                    <DollarSign className="h-5 w-5 text-accent-foreground" strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm text-foreground">
+                      삼성전자 10주 매수해줘
+                    </p>
+                    <p className="text-xs mt-1 text-muted-foreground">
+                      매수 주문 (HITL 승인)
+                    </p>
+                  </div>
                 </button>
 
                 <button
                   onClick={() => handleSendMessage('네이버 5주 매도해줘')}
-                  className="card hover:shadow-md transition-all text-left p-4"
+                  className="flex items-start gap-3 p-4 rounded-lg border border-border bg-card hover:bg-accent hover:border-accent-foreground/20 transition-all text-left"
                 >
-                  <div className="text-xl mb-2">📉</div>
-                  <p className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>
-                    "네이버 5주 매도해줘"
-                  </p>
-                  <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
-                    매도 주문 (HITL 승인)
-                  </p>
+                  <div className="flex-shrink-0 rounded-md bg-accent p-2">
+                    <TrendingDown className="h-5 w-5 text-accent-foreground" strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm text-foreground">
+                      네이버 5주 매도해줘
+                    </p>
+                    <p className="text-xs mt-1 text-muted-foreground">
+                      매도 주문 (HITL 승인)
+                    </p>
+                  </div>
                 </button>
 
                 <button
                   onClick={() => handleSendMessage('리밸런싱 해줘')}
-                  className="card hover:shadow-md transition-all text-left p-4"
+                  className="flex items-start gap-3 p-4 rounded-lg border border-border bg-card hover:bg-accent hover:border-accent-foreground/20 transition-all text-left"
                 >
-                  <div className="text-xl mb-2">🔄</div>
-                  <p className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>
-                    "리밸런싱 해줘"
-                  </p>
-                  <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
-                    포트폴리오 재조정
-                  </p>
+                  <div className="flex-shrink-0 rounded-md bg-accent p-2">
+                    <RefreshCw className="h-5 w-5 text-accent-foreground" strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm text-foreground">
+                      리밸런싱 해줘
+                    </p>
+                    <p className="text-xs mt-1 text-muted-foreground">
+                      포트폴리오 재조정
+                    </p>
+                  </div>
                 </button>
               </div>
             </div>
@@ -217,59 +240,53 @@ export function Chat() {
 
       {/* 승인 사이드패널 */}
       <div
-        className={`fixed right-0 top-[64px] h-[calc(100vh-64px)] w-[400px]
-                    bg-white border-l-2 shadow-2xl overflow-y-auto p-6
+        className={`fixed right-0 top-14 h-[calc(100vh-56px)] w-[400px]
+                    bg-card border-l border-border shadow-2xl overflow-y-auto p-6
                     transform transition-transform duration-300 ease-out
                     ${awaitingApproval ? 'translate-x-0' : 'translate-x-full'}`}
-        style={{ borderColor: 'var(--color-warning-300)' }}
       >
         {approvalRequest && (
           <>
-            <div className="flex items-center gap-2 mb-6">
-              <span className="text-3xl">⚠️</span>
-              <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex-shrink-0 rounded-full bg-yellow-100 p-2">
+                <AlertTriangle className="h-6 w-6 text-yellow-600" strokeWidth={2} />
+              </div>
+              <h2 className="text-xl font-semibold text-foreground">
                 승인이 필요합니다
               </h2>
             </div>
 
             <div className="space-y-4">
-              <div
-                className="rounded-lg p-4"
-                style={{
-                  backgroundColor: 'var(--color-warning-50)',
-                  borderColor: 'var(--color-warning-200)',
-                  border: '1px solid',
-                }}
-              >
-                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+              <div className="rounded-lg p-4 bg-yellow-50 border border-yellow-200">
+                <p className="text-sm leading-relaxed text-foreground">
                   {approvalRequest.message}
                 </p>
               </div>
 
               {tradeData && (
-                <div className="rounded-lg p-4 space-y-3" style={{ backgroundColor: 'var(--color-gray-50)' }}>
+                <div className="rounded-lg p-4 space-y-3 bg-muted">
                   <div className="flex justify-between">
-                    <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    <span className="text-sm text-muted-foreground">
                       종목
                     </span>
-                    <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+                    <span className="font-semibold text-foreground">
                       {tradeData.stock_name || tradeData.stock_code}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    <span className="text-sm text-muted-foreground">
                       주문
                     </span>
-                    <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+                    <span className="font-semibold text-foreground">
                       {tradeData.order_type === 'buy' ? '매수' : '매도'} {tradeData.quantity}주
                     </span>
                   </div>
                   {tradeData.estimated_total && (
-                    <div className="flex justify-between pt-3 border-t" style={{ borderColor: 'var(--border-default)' }}>
-                      <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                    <div className="flex justify-between pt-3 border-t border-border">
+                      <span className="text-sm font-medium text-muted-foreground">
                         총액
                       </span>
-                      <span className="font-bold text-lg" style={{ color: 'var(--color-primary-600)' }}>
+                      <span className="font-bold text-lg text-foreground">
                         ₩{tradeData.estimated_total.toLocaleString()}
                       </span>
                     </div>
@@ -278,34 +295,36 @@ export function Chat() {
               )}
 
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                <label className="block text-sm font-medium mb-2 text-foreground">
                   메모 (선택)
                 </label>
                 <textarea
                   value={userNotes}
                   onChange={(e) => setUserNotes(e.target.value)}
                   placeholder="승인/거부 사유를 입력하세요"
-                  className="input w-full text-sm"
+                  className="w-full px-3 py-2 text-sm rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                   rows={3}
                 />
               </div>
             </div>
 
-            <div className="sticky bottom-0 left-0 right-0 bg-white border-t pt-4 mt-6" style={{ borderColor: 'var(--border-default)' }}>
+            <div className="sticky bottom-0 left-0 right-0 bg-card border-t border-border pt-4 mt-6">
               <div className="flex gap-2">
                 <button
                   onClick={() => handleApproval('approved')}
                   disabled={isSubmitting}
-                  className="btn btn-success flex-1"
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  ✅ 승인
+                  <CheckCircle2 className="h-4 w-4" strokeWidth={2} />
+                  승인
                 </button>
                 <button
                   onClick={() => handleApproval('rejected')}
                   disabled={isSubmitting}
-                  className="btn btn-danger flex-1"
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  ❌ 거부
+                  <XCircle className="h-4 w-4" strokeWidth={2} />
+                  거부
                 </button>
               </div>
             </div>

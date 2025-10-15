@@ -7,7 +7,7 @@ interface LayoutProps {
 
 export function Layout({ onSettingsClick }: LayoutProps) {
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-subtle)' }}>
+    <div className="min-h-screen bg-background">
       <Header onSettingsClick={onSettingsClick} />
       <Outlet />
     </div>

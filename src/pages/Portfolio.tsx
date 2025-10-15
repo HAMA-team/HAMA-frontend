@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { usePortfolioData, CHART_COLORS } from '@/hooks/usePortfolioData';
+import { RefreshCw, MessageSquare } from 'lucide-react';
 
 // 스켈레톤 컴포넌트
 const SkeletonCard = ({ className = '' }: { className?: string }) => (
@@ -129,14 +130,14 @@ export function Portfolio() {
             <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
               성과 분석
             </h2>
-            <div className="flex gap-2">
-              <button onClick={() => setActivePeriod('1m')} className={`px-3 py-1 text-sm rounded-md ${activePeriod === '1m' ? 'bg-primary-100 text-primary-700' : 'hover:bg-gray-100 text-gray-500'}`}>
+            <div className="flex gap-1 p-1 rounded-lg bg-secondary">
+              <button onClick={() => setActivePeriod('1m')} className={`px-3 py-1 text-sm rounded-md transition-colors ${activePeriod === '1m' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>
                 1개월
               </button>
-              <button onClick={() => setActivePeriod('3m')} className={`px-3 py-1 text-sm rounded-md ${activePeriod === '3m' ? 'bg-primary-100 text-primary-700' : 'hover:bg-gray-100 text-gray-500'}`}>
+              <button onClick={() => setActivePeriod('3m')} className={`px-3 py-1 text-sm rounded-md transition-colors ${activePeriod === '3m' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>
                 3개월
               </button>
-              <button onClick={() => setActivePeriod('1y')} className={`px-3 py-1 text-sm rounded-md ${activePeriod === '1y' ? 'bg-primary-100 text-primary-700' : 'hover:bg-gray-100 text-gray-500'}`}>
+              <button onClick={() => setActivePeriod('1y')} className={`px-3 py-1 text-sm rounded-md transition-colors ${activePeriod === '1y' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>
                 1년
               </button>
             </div>
@@ -154,7 +155,7 @@ export function Portfolio() {
                   <Line
                     type="monotone"
                     dataKey="value"
-                    stroke="var(--color-primary-500)"
+                    stroke="hsl(var(--foreground))"
                     strokeWidth={2}
                     dot={false}
                   />
@@ -177,7 +178,7 @@ export function Portfolio() {
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {allocationData.map((entry, index) => (
+                    {allocationData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                     ))}
                   </Pie>
@@ -283,12 +284,14 @@ export function Portfolio() {
 
         {/* 하단 액션 버튼 */}
         <div className="flex gap-4 mt-8">
-          <button onClick={handleRebalanceRequest} className="btn btn-primary flex-1">
-            🔄 리밸런싱 요청
+          <button onClick={handleRebalanceRequest} className="inline-flex items-center justify-center gap-2 btn btn-primary flex-1">
+            <RefreshCw className="h-4 w-4" strokeWidth={2} />
+            리밸런싱 요청
           </button>
 
-          <button onClick={() => navigate('/chat')} className="btn btn-outline flex-1">
-            💬 종목 추가 문의
+          <button onClick={() => navigate('/chat')} className="inline-flex items-center justify-center gap-2 btn btn-outline flex-1">
+            <MessageSquare className="h-4 w-4" strokeWidth={2} />
+            종목 추가 문의
           </button>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from '@/components/layout';
 import { SettingsModal } from '@/components/settings';
@@ -9,29 +9,15 @@ import { Signup } from '@/pages/Signup';
 
 function App() {
   const [showSettings, setShowSettings] = useState(false);
-  const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // 온보딩 완료 여부 확인
-    const completed = localStorage.getItem('onboarding_completed') === 'true';
-    setIsOnboardingComplete(completed);
-    setIsLoading(false);
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="loading-spinner"></div>
-      </div>
-    );
-  }
 
   return (
     <Router>
       <Routes>
-        {/* Welcome & Signup - 온보딩 전 */}
-        <Route path="/" element={isOnboardingComplete ? <Navigate to="/dashboard" /> : <Welcome />} />
+        {/* 기본 경로는 대시보드로 이동 - 온보딩 우회 */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+        {/* Welcome & Signup - 선택적으로 접근 가능 */}
+        <Route path="/welcome" element={<Welcome />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/onboarding" element={<Onboarding />} />
 

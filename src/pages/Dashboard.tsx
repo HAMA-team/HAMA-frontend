@@ -4,17 +4,18 @@ import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import type { DashboardData } from '@/hooks/useDashboardData';
+import { TrendingUp, TrendingDown, Lightbulb, AlertTriangle, MessageSquare, RefreshCw, LineChart as LineChartIcon } from 'lucide-react';
 
 const ActivityIcon = ({ type }: { type: string }) => {
   switch (type) {
     case 'trade_buy':
-      return <span className="text-success-700">↑</span>;
+      return <TrendingUp className="h-4 w-4 text-foreground" strokeWidth={1.5} />;
     case 'trade_sell':
-      return <span className="text-danger-700">↓</span>;
+      return <TrendingDown className="h-4 w-4 text-foreground" strokeWidth={1.5} />;
     case 'ai_suggestion':
-      return <span className="text-info-700">💡</span>;
+      return <Lightbulb className="h-4 w-4 text-foreground" strokeWidth={1.5} />;
     case 'risk_warning':
-      return <span className="text-warning-700">⚠️</span>;
+      return <AlertTriangle className="h-4 w-4 text-foreground" strokeWidth={1.5} />;
     default:
       return null;
   }
@@ -56,7 +57,23 @@ export function Dashboard() {
     ...portfolioSummary.holdings.map((h) => ({ name: h.name, value: h.percentage })),
     { name: '현금', value: portfolioSummary.cash },
   ];
-  const CHART_COLORS = ['#6366f1', '#a855f7', '#06b6d4', '#f59e0b', '#9ca3af'];
+
+  // 각 기업의 브랜드 색상을 투명도를 조절해서 사용 (모노톤 베이스에 accent)
+  const getStockColor = (name: string) => {
+    const colorMap: Record<string, string> = {
+      '삼성전자': 'rgba(20, 70, 180, 0.7)',      // Samsung Blue
+      'NAVER': 'rgba(3, 199, 90, 0.7)',           // Naver Green
+      'SK하이닉스': 'rgba(234, 0, 0, 0.7)',       // SK Red
+      'LG화학': 'rgba(164, 26, 47, 0.7)',         // LG Red
+      '카카오': 'rgba(254, 229, 0, 0.7)',         // Kakao Yellow
+      '현대차': 'rgba(0, 44, 95, 0.7)',           // Hyundai Blue
+      '기아': 'rgba(5, 20, 31, 0.7)',             // Kia Dark
+      '현금': 'rgba(163, 163, 163, 0.5)',         // Gray
+    };
+    return colorMap[name] || 'rgba(115, 115, 115, 0.6)';
+  };
+
+  const CHART_COLORS = chartData.map(item => getStockColor(item.name));
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-8">
@@ -82,29 +99,36 @@ export function Dashboard() {
 
         {/* 총 자산 카드 (강조) */}
         <div
-          className="col-span-12 md:col-span-8 card cursor-pointer transition-all hover:transform hover:-translate-y-1"
+          className="col-span-12 md:col-span-8 card cursor-pointer transition-all hover:shadow-md group"
           onClick={() => navigate('/portfolio')}
-          style={{
-            background:
-              'linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-600) 100%)',
-          }}
         >
-          <div className="text-white">
-            <h3 className="text-sm font-medium opacity-90 mb-1">총 자산</h3>
-            <p className="text-4xl font-bold">₩{totalAssets.value.toLocaleString()}</p>
-            <div className="flex items-baseline justify-between mt-2">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-muted-foreground">총 자산</h3>
+              <div className="w-2 h-2 rounded-full bg-foreground opacity-60"></div>
+            </div>
+            <p className="text-4xl font-semibold tracking-tight text-foreground">
+              ₩{totalAssets.value.toLocaleString()}
+            </p>
+            <div className="flex items-baseline justify-between pt-2 border-t border-border">
               <div className="flex items-center gap-2">
                 {totalAssets.profitRate >= 0 ? (
-                  <span className="text-xl font-semibold text-green-300">
-                    +₩{totalAssets.profit.toLocaleString()} (+{totalAssets.profitRate}%)
+                  <span className="text-base font-medium text-foreground">
+                    +₩{totalAssets.profit.toLocaleString()}
+                    <span className="text-sm text-muted-foreground ml-2">
+                      +{totalAssets.profitRate}%
+                    </span>
                   </span>
                 ) : (
-                  <span className="text-xl font-semibold text-red-300">
-                    ₩{totalAssets.profit.toLocaleString()} ({totalAssets.profitRate}%)
+                  <span className="text-base font-medium text-foreground">
+                    ₩{totalAssets.profit.toLocaleString()}
+                    <span className="text-sm text-muted-foreground ml-2">
+                      {totalAssets.profitRate}%
+                    </span>
                   </span>
                 )}
               </div>
-              <span className="text-xs opacity-80">{totalAssets.reference}</span>
+              <span className="text-xs text-muted-foreground">{totalAssets.reference}</span>
             </div>
           </div>
         </div>
@@ -128,7 +152,7 @@ export function Dashboard() {
                       paddingAngle={5}
                       dataKey="value"
                     >
-                      {chartData.map((entry, index) => (
+                      {chartData.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                       ))}
                     </Pie>
@@ -184,16 +208,19 @@ export function Dashboard() {
         {/* Quick Actions 카드 */}
         <div className="col-span-12">
           <div className="card">
-            <h3 className="text-lg font-bold mb-4">빠른 실행</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <button onClick={() => navigate('/chat')} className="btn btn-primary btn-lg">
-                💬 HAMA와 대화하기
+            <h3 className="text-base font-semibold mb-4 text-foreground">빠른 실행</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <button onClick={() => navigate('/chat')} className="inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium rounded-lg border border-border bg-card hover:bg-secondary transition-colors">
+                <MessageSquare className="h-4 w-4" strokeWidth={1.5} />
+                <span>HAMA와 대화하기</span>
               </button>
-              <button onClick={() => navigate('/chat')} className="btn btn-outline btn-lg">
-                🔄 포트폴리오 리밸런싱
+              <button onClick={() => navigate('/chat')} className="inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium rounded-lg border border-border bg-card hover:bg-secondary transition-colors">
+                <RefreshCw className="h-4 w-4" strokeWidth={1.5} />
+                <span>포트폴리오 리밸런싱</span>
               </button>
-              <button onClick={() => navigate('/chat')} className="btn btn-outline btn-lg">
-                📈 최신 시장 동향 분석
+              <button onClick={() => navigate('/chat')} className="inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium rounded-lg border border-border bg-card hover:bg-secondary transition-colors">
+                <LineChartIcon className="h-4 w-4" strokeWidth={1.5} />
+                <span>최신 시장 동향 분석</span>
               </button>
             </div>
           </div>

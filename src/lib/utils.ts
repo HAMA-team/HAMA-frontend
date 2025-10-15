@@ -1,4 +1,11 @@
 // 유틸리티 함수들
+import { type ClassValue, clsx } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+// 클래스명 결합 (Tailwind 유틸리티 - Shadcn UI 스타일)
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
 
 // 숫자 포맷팅 (3자리마다 쉼표)
 export function formatNumber(num: number): string {
@@ -37,9 +44,4 @@ export function formatTime(date: Date | string): string {
 // 날짜+시간 포맷팅
 export function formatDateTime(date: Date | string): string {
   return `${formatDate(date)} ${formatTime(date)}`;
-}
-
-// 클래스명 결합 (Tailwind 유틸리티)
-export function cn(...classes: (string | boolean | undefined | null)[]): string {
-  return classes.filter(Boolean).join(' ');
 }
